@@ -355,10 +355,17 @@ public abstract class AbstractRenderer
             renderBeforeFloat(bf);
         }
         MainReference mr = region.getMainReference();
-        if (mr != null) {
-            renderMainReference(mr);
-        }
         Footnote foot = region.getFootnote();
+        if (mr != null) {
+            int footnoteheight = 0;
+            if (foot != null && foot.hasImage()) {
+                footnoteheight += foot.getBPD();
+                if (foot.getSeparatorArea() != null) {
+                    footnoteheight += foot.getSeparatorArea().getBPD();
+                }
+            }
+            renderMainReference(mr, footnoteheight);
+        }
         if (foot != null) {
             renderFootnote(foot);
         }
@@ -409,6 +416,10 @@ public abstract class AbstractRenderer
      * @param mr  The main reference area
      */
     protected void renderMainReference(MainReference mr) {
+        renderMainReference(mr, 0);
+    }
+
+    protected void renderMainReference(MainReference mr, int footnoteheight) {
         Span span = null;
         List spans = mr.getSpans();
         int saveBPPos = currentBPPosition;
@@ -431,6 +442,9 @@ public abstract class AbstractRenderer
                     if ((level & 1) == 1) {
                         currentIPPosition -= flow.getIPD();
                         currentIPPosition -= mr.getColumnGap();
+                    }
+                    if (footnoteheight > 0) {
+                        currentBPPosition += footnoteheight;
                     }
                     renderFlow(flow);
                     if ((level & 1) == 0) {

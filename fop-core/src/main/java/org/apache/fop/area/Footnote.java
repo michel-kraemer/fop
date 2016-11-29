@@ -19,6 +19,9 @@
 
 package org.apache.fop.area;
 
+import org.apache.fop.area.inline.Image;
+import org.apache.fop.area.inline.InlineViewport;
+
 // may combine with before float into a conditional area
 
 /**
@@ -32,12 +35,16 @@ public class Footnote extends BlockParent {
 
     private Block separator;
 
+    private Block separatorArea;
+
     // footnote has an optional separator
     // and a list of sub block areas that can be added/removed
 
     // this is the relative position of the footnote inside
     // the body region
     private int top;
+
+    private boolean hasImage;
 
     /**
      * Set the separator area for this footnote.
@@ -49,12 +56,28 @@ public class Footnote extends BlockParent {
     }
 
     /**
+     * FIXME I don't know if {@link #setSeparator(Block)} is ever called or if
+     * this is just a duplicate
+     */
+    public void setSeparatorArea(Block sep) {
+        separatorArea = sep;
+    }
+
+    /**
      * Get the separator area for this footnote area.
      *
      * @return the separator area
      */
     public Block getSeparator() {
         return separator;
+    }
+
+    /**
+     * FIXME I don't know if {@link #getSeparator()} is ever called or if
+     * this is just a duplicate
+     */
+    public Block getSeparatorArea() {
+        return separatorArea;
     }
 
     /**
@@ -84,7 +107,40 @@ public class Footnote extends BlockParent {
     public void addBlock(Block child) {
         addChildArea(child);
         setBPD(getBPD() + child.getAllocBPD());
+        if (hasImage(child)) {
+            hasImage = true;
+        }
     }
 
+    public boolean hasImage() {
+        return hasImage;
+    }
+
+    private boolean hasImage(BlockParent block) {
+        if (block == null || block.getChildAreas() == null) {
+            return false;
+        }
+        for (Object o : block.getChildAreas()) {
+            if (o instanceof Block) {
+                Block child = (Block)o;
+                if (hasImage(child)) {
+                    return true;
+                }
+            } else if (o instanceof LineArea) {
+                LineArea area = (LineArea)o;
+                if (area.getInlineAreas() != null) {
+                    for (Object ia : area.getInlineAreas()) {
+                        if (ia instanceof InlineViewport) {
+                            InlineViewport iv = (InlineViewport)ia;
+                            if (iv.getContent() instanceof Image) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
 
