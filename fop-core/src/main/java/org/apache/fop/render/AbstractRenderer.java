@@ -358,7 +358,7 @@ public abstract class AbstractRenderer
         Footnote foot = region.getFootnote();
         if (mr != null) {
             int footnoteheight = 0;
-            if (foot != null && foot.hasImage()) {
+            if (foot != null && foot.isHackTop()) {
                 footnoteheight += foot.getBPD();
                 if (foot.getSeparatorArea() != null) {
                     footnoteheight += foot.getSeparatorArea().getBPD();
