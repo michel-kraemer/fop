@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.fop.area.Area;
+import org.apache.fop.area.Footnote;
 import org.apache.fop.fo.flow.FootnoteBody;
 
 /**
@@ -93,6 +94,12 @@ public class FootnoteBodyLayoutManager extends BlockStackingLayoutManager {
     @Override
     public void addChildArea(Area childArea) {
         childArea.setAreaClass(Area.CLASS_FOOTNOTE);
+        if (fobj.getId().startsWith("_hack")) {
+            Area parentArea = parentLayoutManager.getParentArea(childArea);
+            if (parentArea instanceof Footnote) {
+                ((Footnote)parentArea).setHackId(fobj.getId());
+            }
+        }
         parentLayoutManager.addChildArea(childArea);
     }
 

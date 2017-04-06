@@ -19,9 +19,6 @@
 
 package org.apache.fop.area;
 
-import org.apache.fop.area.inline.Image;
-import org.apache.fop.area.inline.InlineViewport;
-
 // may combine with before float into a conditional area
 
 /**
@@ -44,8 +41,24 @@ public class Footnote extends BlockParent {
     // the body region
     private int top;
 
-    private boolean hasImage;
-
+    private String hackId;
+    
+    public void setHackId(String id) {
+        this.hackId = id;
+    }
+    
+    public String getHackId() {
+        return hackId;
+    }
+    
+    public boolean isHackTop() {
+        return hackId != null && hackId.startsWith("_hack_footnote_top");
+    }
+    
+    public boolean isHackBottom() {
+        return hackId != null && hackId.startsWith("_hack_footnote_bottom");
+    }
+    
     /**
      * Set the separator area for this footnote.
      *
@@ -107,40 +120,5 @@ public class Footnote extends BlockParent {
     public void addBlock(Block child) {
         addChildArea(child);
         setBPD(getBPD() + child.getAllocBPD());
-        if (hasImage(child)) {
-            hasImage = true;
-        }
-    }
-
-    public boolean hasImage() {
-        return hasImage;
-    }
-
-    private boolean hasImage(BlockParent block) {
-        if (block == null || block.getChildAreas() == null) {
-            return false;
-        }
-        for (Object o : block.getChildAreas()) {
-            if (o instanceof Block) {
-                Block child = (Block)o;
-                if (hasImage(child)) {
-                    return true;
-                }
-            } else if (o instanceof LineArea) {
-                LineArea area = (LineArea)o;
-                if (area.getInlineAreas() != null) {
-                    for (Object ia : area.getInlineAreas()) {
-                        if (ia instanceof InlineViewport) {
-                            InlineViewport iv = (InlineViewport)ia;
-                            if (iv.getContent() instanceof Image) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 }
-

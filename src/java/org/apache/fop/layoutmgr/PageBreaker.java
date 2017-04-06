@@ -551,15 +551,19 @@ public class PageBreaker extends AbstractBreaker {
             Footnote parentArea = pslm.getCurrentPV().getBodyRegion().getFootnote();
             int topOffset = pslm.getCurrentPV().getBodyRegion().getBPD() - parentArea.getBPD();
             if (separatorArea != null) {
-                if (!parentArea.hasImage()) {
+                if (!parentArea.isHackTop()) {
                     topOffset -= separatorArea.getBPD();
                 } else {
                     parentArea.setSeparatorArea(separatorArea);
                 }
             }
-            if (!parentArea.hasImage()) {
-                parentArea.setTop(topOffset);
-                parentArea.setSeparator(separatorArea);
+            if (!parentArea.isHackTop()) {
+                if (!parentArea.isHackBottom()) {
+                    parentArea.setTop(topOffset);
+                    parentArea.setSeparator(separatorArea);
+                } else {
+                    parentArea.setTop(topOffset + 17000);
+                }
             } else {
                 parentArea.setTop(0);
             }
